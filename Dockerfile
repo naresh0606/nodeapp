@@ -1,13 +1,19 @@
-# use a node base image
-FROM node:7-onbuild
+FROM centos
 
-# set maintainer
-LABEL maintainer "crudsinfotechng@gmail.com"
+MAINTAINER hello@gritfy.com
 
-# set a health check
-HEALTHCHECK --interval=5s \
-            --timeout=5s \
-            CMD curl -f http://127.0.0.1:8000 || exit 1
+RUN mkdir /opt/tomcat/
 
-# tell docker what port to expose
-EXPOSE 8000
+WORKDIR /opt/tomcat
+RUN curl -O https://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.40/bin/apache-tomcat-8.5.40.tar.gz
+RUN tar xvfz apache*.tar.gz
+RUN mv apache-tomcat-8.5.40/* /opt/tomcat/.
+RUN yum -y install java
+RUN java -version
+
+WORKDIR /opt/tomcat/webapps
+RUN curl -O -L https://github.com/AKSarav/SampleWebApp/raw/master/dist/SampleWebApp.war
+
+EXPOSE 5050
+
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
